@@ -237,7 +237,7 @@ class WorkoutBuilderPage extends JFrame {
         if (walking) workoutBuilder.append("Walking, ");
         if (running) workoutBuilder.append("Running, ");
         if (aerobics) workoutBuilder.append("Aerobics, ");
-        if (weightLifting) workoutBuilder.append("Weight Training");
+        if (weightLifting) workoutBuilder.append("Weight Lifting");
         
         
 
@@ -486,16 +486,16 @@ class CalorieBurnCalculatorPage extends JFrame {
                 String selectedActivity = (String) activityComboBox.getSelectedItem();
                 switch (selectedActivity) {
                     case "Walking":
-                        caloriesBurned = duration * 3.5; // 
+                        caloriesBurned = duration * 3; // avg walking speed at 3 mph 
                         break;
                     case "Running":
-                        caloriesBurned = duration * 9; // 
+                        caloriesBurned = duration * 7; // avg running speed at 7 mph
                         break;
                     case "Aerobics":
-                        caloriesBurned = duration * 25; // 
+                        caloriesBurned = duration * 444; // avg cal burned 444 per minute
                         break;
                     case "Weight Lifting":
-                        caloriesBurned = duration * 12; // 
+                        caloriesBurned = duration * 4; //  avg 4 cal burned per minute
                         break;
                 }
                 resultLabel.setText("Calories burned: " + caloriesBurned);
