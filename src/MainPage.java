@@ -15,6 +15,8 @@ import java.awt.geom.Ellipse2D;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 @SuppressWarnings({ "serial", "unused" })
 class MainPage extends JFrame {
@@ -98,13 +101,46 @@ class MainPage extends JFrame {
 
 @SuppressWarnings("serial")
 class UserProfilePage extends JFrame {
+    private JTextField nameField;
+    private JTextField ageField;
+    private JTextField heightField;
+    private JTextField weightField;
+    private JButton aerobicsButton;
+    private JButton weightLiftingButton;
+
+    private Map<String, UserProfile> profiles;
+    private UserProfile currentProfile;
+
     public UserProfilePage() {
         setTitle("User Profile");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(600, 400);
 
+        // Initialize profiles
+        profiles = new HashMap<>();
+        profiles.put("Profile 1", new UserProfile("Profile 1"));
+        profiles.put("Profile 2", new UserProfile("Profile 2"));
+        profiles.put("Profile 3", new UserProfile("Profile 3"));
+        currentProfile = profiles.get("Profile 1");
+
         // Main panel with border layout
         JPanel mainPanel = new JPanel(new BorderLayout());
+
+        // Profile selection panel
+        JPanel profileSelectionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton profile1Button = new JButton("Profile 1");
+        JButton profile2Button = new JButton("Profile 2");
+        JButton profile3Button = new JButton("Profile 3");
+
+        profileSelectionPanel.add(profile1Button);
+        profileSelectionPanel.add(profile2Button);
+        profileSelectionPanel.add(profile3Button);
+
+        profile1Button.addActionListener(e -> switchProfile("Profile 1"));
+        profile2Button.addActionListener(e -> switchProfile("Profile 2"));
+        profile3Button.addActionListener(e -> switchProfile("Profile 3"));
+
+        mainPanel.add(profileSelectionPanel, BorderLayout.NORTH);
 
         // Profile picture panel
         JPanel profilePicturePanel = new JPanel() {
@@ -123,19 +159,19 @@ class UserProfilePage extends JFrame {
         };
         profilePicturePanel.setPreferredSize(new Dimension(100, 100)); // Adjust size as needed
         profilePicturePanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Add border for spacing
-        mainPanel.add(profilePicturePanel, BorderLayout.NORTH);
+        mainPanel.add(profilePicturePanel, BorderLayout.WEST);
 
         // User details panel
         JPanel userDetailsPanel = new JPanel(new GridLayout(4, 2));
         userDetailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
         JLabel nameLabel = new JLabel("Name:");
-        JTextField nameField = new JTextField();
+        nameField = new JTextField();
         JLabel ageLabel = new JLabel("Age:");
-        JTextField ageField = new JTextField();
+        ageField = new JTextField();
         JLabel heightLabel = new JLabel("Height (cm):");
-        JTextField heightField = new JTextField();
+        heightField = new JTextField();
         JLabel weightLabel = new JLabel("Weight (kg):");
-        JTextField weightField = new JTextField();
+        weightField = new JTextField();
         userDetailsPanel.add(nameLabel);
         userDetailsPanel.add(nameField);
         userDetailsPanel.add(ageLabel);
@@ -152,17 +188,109 @@ class UserProfilePage extends JFrame {
         JLabel favoriteLabel = new JLabel("Favorite Workouts:");
         favoriteWorkoutsPanel.add(favoriteLabel, BorderLayout.NORTH);
         JPanel favoriteButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton aerobicsButton = new JButton("Aerobics");
-        JButton weightLiftingButton = new JButton("Weight Lifting");
+        aerobicsButton = new JButton("Aerobics");
+        weightLiftingButton = new JButton("Weight Lifting");
         favoriteButtonsPanel.add(aerobicsButton);
         favoriteButtonsPanel.add(weightLiftingButton);
         favoriteWorkoutsPanel.add(favoriteButtonsPanel, BorderLayout.CENTER);
         mainPanel.add(favoriteWorkoutsPanel, BorderLayout.SOUTH);
 
+        // Add action listeners to update profile data
+        addListeners();
+
+        // Set initial profile data
+        updateProfileData();
+
         setContentPane(mainPanel);
+    }
+
+    private void addListeners() {
+        nameField.addActionListener(e -> currentProfile.setName(nameField.getText()));
+        ageField.addActionListener(e -> currentProfile.setAge(ageField.getText()));
+        heightField.addActionListener(e -> currentProfile.setHeight(heightField.getText()));
+        weightField.addActionListener(e -> currentProfile.setWeight(weightField.getText()));
+        aerobicsButton.addActionListener(e -> currentProfile.setFavoriteWorkout("Aerobics"));
+        weightLiftingButton.addActionListener(e -> currentProfile.setFavoriteWorkout("Weight Lifting"));
+    }
+
+    private void switchProfile(String profileName) {
+        currentProfile = profiles.get(profileName);
+        updateProfileData();
+    }
+
+    private void updateProfileData() {
+        nameField.setText(currentProfile.getName());
+        ageField.setText(currentProfile.getAge());
+        heightField.setText(currentProfile.getHeight());
+        weightField.setText(currentProfile.getWeight());
+        if ("Aerobics".equals(currentProfile.getFavoriteWorkout())) {
+            aerobicsButton.setBackground(Color.GREEN);
+            weightLiftingButton.setBackground(null);
+        } else if ("Weight Lifting".equals(currentProfile.getFavoriteWorkout())) {
+            weightLiftingButton.setBackground(Color.GREEN);
+            aerobicsButton.setBackground(null);
+        } else {
+            aerobicsButton.setBackground(null);
+            weightLiftingButton.setBackground(null);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new UserProfilePage().setVisible(true));
     }
 }
 
+class UserProfile {
+    private String name;
+    private String age;
+    private String height;
+    private String weight;
+    private String favoriteWorkout;
+
+    public UserProfile(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getFavoriteWorkout() {
+        return favoriteWorkout;
+    }
+
+    public void setFavoriteWorkout(String favoriteWorkout) {
+        this.favoriteWorkout = favoriteWorkout;
+    }
+}
 
 @SuppressWarnings("serial")
 class WorkoutBuilderPage extends JFrame {
@@ -271,6 +399,9 @@ class WorkoutBuilderPage extends JFrame {
         buttonPanel.add(new JLabel("Delete"));
         buttonPanel.add(deleteButton);
         workoutPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        ImageIcon icon = new ImageIcon("FitnessTrackerLogo.png");
+        JLabel iconLabel = new JLabel(icon);
 
         tabbedPane.addTab(workoutLabel, workoutPanel);
         updateAddCustomWorkoutButton();
