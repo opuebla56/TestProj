@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -107,6 +110,7 @@ class UserProfilePage extends JFrame {
     private JTextField weightField;
     private JButton aerobicsButton;
     private JButton weightLiftingButton;
+    private JButton saveButton;
 
     private Map<String, UserProfile> profiles;
     private UserProfile currentProfile;
@@ -162,24 +166,55 @@ class UserProfilePage extends JFrame {
         mainPanel.add(profilePicturePanel, BorderLayout.WEST);
 
         // User details panel
-        JPanel userDetailsPanel = new JPanel(new GridLayout(4, 2));
+        JPanel userDetailsPanel = new JPanel(new GridBagLayout());
         userDetailsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
         JLabel nameLabel = new JLabel("Name:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        userDetailsPanel.add(nameLabel, gbc);
         nameField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        userDetailsPanel.add(nameField, gbc);
+
         JLabel ageLabel = new JLabel("Age:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        userDetailsPanel.add(ageLabel, gbc);
         ageField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        userDetailsPanel.add(ageField, gbc);
+
         JLabel heightLabel = new JLabel("Height (cm):");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        userDetailsPanel.add(heightLabel, gbc);
         heightField = new JTextField();
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        userDetailsPanel.add(heightField, gbc);
+
         JLabel weightLabel = new JLabel("Weight (kg):");
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 1;
+        userDetailsPanel.add(weightLabel, gbc);
         weightField = new JTextField();
-        userDetailsPanel.add(nameLabel);
-        userDetailsPanel.add(nameField);
-        userDetailsPanel.add(ageLabel);
-        userDetailsPanel.add(ageField);
-        userDetailsPanel.add(heightLabel);
-        userDetailsPanel.add(heightField);
-        userDetailsPanel.add(weightLabel);
-        userDetailsPanel.add(weightField);
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        userDetailsPanel.add(weightField, gbc);
+
         mainPanel.add(userDetailsPanel, BorderLayout.CENTER);
 
         // Favorite workouts panel
@@ -193,6 +228,12 @@ class UserProfilePage extends JFrame {
         favoriteButtonsPanel.add(aerobicsButton);
         favoriteButtonsPanel.add(weightLiftingButton);
         favoriteWorkoutsPanel.add(favoriteButtonsPanel, BorderLayout.CENTER);
+
+        // Save button
+        saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> saveProfileData());
+        favoriteWorkoutsPanel.add(saveButton, BorderLayout.SOUTH);
+
         mainPanel.add(favoriteWorkoutsPanel, BorderLayout.SOUTH);
 
         // Add action listeners to update profile data
@@ -233,6 +274,19 @@ class UserProfilePage extends JFrame {
             aerobicsButton.setBackground(null);
             weightLiftingButton.setBackground(null);
         }
+    }
+
+    private void saveProfileData() {
+        currentProfile.setName(nameField.getText());
+        currentProfile.setAge(ageField.getText());
+        currentProfile.setHeight(heightField.getText());
+        currentProfile.setWeight(weightField.getText());
+        if (aerobicsButton.getBackground() == Color.GREEN) {
+            currentProfile.setFavoriteWorkout("Aerobics");
+        } else if (weightLiftingButton.getBackground() == Color.GREEN) {
+            currentProfile.setFavoriteWorkout("Weight Lifting");
+        }
+        JOptionPane.showMessageDialog(this, "Profile saved successfully!");
     }
 
     public static void main(String[] args) {
@@ -312,7 +366,7 @@ class WorkoutBuilderPage extends JFrame {
         addCustomWorkoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                openCustomWorkoutPage();
+                openWorkoutCategoriesPage();
             }
         });
         plusButtonPanel.add(addCustomWorkoutButton);
@@ -325,83 +379,97 @@ class WorkoutBuilderPage extends JFrame {
         setContentPane(mainPanel);
     }
 
-    private void openCustomWorkoutPage() {
-        JFrame customWorkoutPage = new JFrame("Custom Workouts");
+    private void openWorkoutCategoriesPage() {
+        JFrame categoriesPage = new JFrame("Select Workout Category");
+        categoriesPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        categoriesPage.setSize(400, 300);
+
+        // Panel for workout categories
+        JPanel categoryPanel = new JPanel(new GridLayout(4, 1));
+        JButton walkingButton = new JButton("Walking");
+        JButton runningButton = new JButton("Running");
+        JButton aerobicsButton = new JButton("Aerobics");
+        JButton weightLiftingButton = new JButton("Weight Lifting");
+
+        walkingButton.addActionListener(e -> openCustomWorkoutPage("Walking"));
+        runningButton.addActionListener(e -> openCustomWorkoutPage("Running"));
+        aerobicsButton.addActionListener(e -> openCustomWorkoutPage("Aerobics"));
+        weightLiftingButton.addActionListener(e -> openCustomWorkoutPage("Weight Lifting"));
+
+        categoryPanel.add(walkingButton);
+        categoryPanel.add(runningButton);
+        categoryPanel.add(aerobicsButton);
+        categoryPanel.add(weightLiftingButton);
+
+        categoriesPage.setContentPane(categoryPanel);
+        categoriesPage.setVisible(true);
+    }
+
+    private void openCustomWorkoutPage(String workoutType) {
+        JFrame customWorkoutPage = new JFrame(workoutType + " Workouts");
         customWorkoutPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         customWorkoutPage.setSize(400, 300);
 
         // Panel for workout selection
-        JPanel workoutSelectionPanel = new JPanel(new GridLayout(4, 1));
-        JCheckBox walkingCheckBox = new JCheckBox("Walking");
-        JCheckBox runningCheckBox = new JCheckBox("Running");
-        JCheckBox aerobicsCheckBox = new JCheckBox("Aerobics");
-        JCheckBox weightLiftingCheckBox = new JCheckBox("Weight Lifting");
+        JPanel workoutSelectionPanel = new JPanel(new BorderLayout());
 
+        JPanel checkBoxPanel = new JPanel(new GridLayout(4, 1));
+        JCheckBox workout1 = new JCheckBox(workoutType + " Workout 1");
+        JCheckBox workout2 = new JCheckBox(workoutType + " Workout 2");
+        JCheckBox workout3 = new JCheckBox(workoutType + " Workout 3");
+        JCheckBox workout4 = new JCheckBox(workoutType + " Workout 4");
+
+        checkBoxPanel.add(workout1);
+        checkBoxPanel.add(workout2);
+        checkBoxPanel.add(workout3);
+        checkBoxPanel.add(workout4);
+
+        workoutSelectionPanel.add(checkBoxPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveSelectedWorkouts(walkingCheckBox.isSelected(), runningCheckBox.isSelected(),
-                        aerobicsCheckBox.isSelected(), weightLiftingCheckBox.isSelected());
-                customWorkoutPage.dispose();
-            }
+        saveButton.setPreferredSize(new Dimension(75, 30));
+        saveButton.addActionListener(e -> {
+            saveSelectedWorkouts(workoutType, workout1.isSelected(), workout2.isSelected(), workout3.isSelected(), workout4.isSelected());
+            customWorkoutPage.dispose();
         });
+        buttonPanel.add(saveButton);
 
-        workoutSelectionPanel.add(walkingCheckBox);
-        workoutSelectionPanel.add(runningCheckBox);
-        workoutSelectionPanel.add(aerobicsCheckBox);
-        workoutSelectionPanel.add(weightLiftingCheckBox);
+        workoutSelectionPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        workoutSelectionPanel.add(saveButton);
         customWorkoutPage.setContentPane(workoutSelectionPanel);
         customWorkoutPage.setVisible(true);
     }
 
-    private void saveSelectedWorkouts(boolean walking, boolean running, boolean aerobics, boolean weightLifting) {
+    private void saveSelectedWorkouts(String workoutType, boolean workout1, boolean workout2, boolean workout3, boolean workout4) {
         String workoutLabel = getNextCustomWorkoutTabName();
         JPanel workoutPanel = new JPanel(new BorderLayout());
 
-        StringBuilder workoutBuilder = new StringBuilder("Workouts: ");
-        if (walking) workoutBuilder.append("Walking, ");
-        if (running) workoutBuilder.append("Running, ");
-        if (aerobics) workoutBuilder.append("Aerobics, ");
-        if (weightLifting) workoutBuilder.append("Weight Lifting");
-        
-        
+        StringBuilder workoutBuilder = new StringBuilder(workoutType + " Workouts: ");
+        if (workout1) workoutBuilder.append(workoutType + " Workout 1, ");
+        if (workout2) workoutBuilder.append(workoutType + " Workout 2, ");
+        if (workout3) workoutBuilder.append(workoutType + " Workout 3, ");
+        if (workout4) workoutBuilder.append(workoutType + " Workout 4, ");
 
         JLabel workoutsLabel = new JLabel(workoutBuilder.toString());
         workoutPanel.add(workoutsLabel, BorderLayout.CENTER);
 
         JButton editButton = new JButton("Edit");
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editWorkout(workoutLabel, workoutsLabel);
-            }
-        });
+        editButton.addActionListener(e -> editWorkout(workoutLabel, workoutsLabel, workoutType));
 
         JButton deleteButton = new JButton(new ImageIcon(getClass().getResource("TrashCan.png")));
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this custom workout?",
-                        "Delete Custom Workout", JOptionPane.YES_NO_OPTION);
-                if (option == JOptionPane.YES_OPTION) {
-                    tabbedPane.removeTabAt(tabbedPane.indexOfComponent(workoutPanel));
-                    updateAddCustomWorkoutButton();
-                }
+        deleteButton.addActionListener(e -> {
+            int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this custom workout?", "Delete Custom Workout", JOptionPane.YES_NO_OPTION);
+            if (option == JOptionPane.YES_OPTION) {
+                tabbedPane.removeTabAt(tabbedPane.indexOfComponent(workoutPanel));
+                updateAddCustomWorkoutButton();
             }
         });
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(new JLabel("Edit"));
         buttonPanel.add(editButton);
-        buttonPanel.add(new JLabel("Delete"));
         buttonPanel.add(deleteButton);
         workoutPanel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        ImageIcon icon = new ImageIcon("FitnessTrackerLogo.png");
-        JLabel iconLabel = new JLabel(icon);
 
         tabbedPane.addTab(workoutLabel, workoutPanel);
         updateAddCustomWorkoutButton();
@@ -416,53 +484,57 @@ class WorkoutBuilderPage extends JFrame {
         return workoutLabel;
     }
 
-    private void editWorkout(String workoutLabel, JLabel workoutsLabel) {
+    private void editWorkout(String workoutLabel, JLabel workoutsLabel, String workoutType) {
         JFrame customWorkoutPage = new JFrame("Edit Custom Workouts");
         customWorkoutPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         customWorkoutPage.setSize(400, 300);
 
-        JPanel workoutSelectionPanel = new JPanel(new GridLayout(4, 1));
-        JCheckBox walkingCheckBox = new JCheckBox("Walking");
-        JCheckBox runningCheckBox = new JCheckBox("Running");
-        JCheckBox aerobicsCheckBox = new JCheckBox("Aerobics");
-        JCheckBox weightLiftingCheckBox = new JCheckBox("Weight Lifting");
+        JPanel workoutSelectionPanel = new JPanel(new BorderLayout());
+
+        JPanel checkBoxPanel = new JPanel(new GridLayout(4, 1));
+        JCheckBox workout1 = new JCheckBox(workoutType + " Workout 1");
+        JCheckBox workout2 = new JCheckBox(workoutType + " Workout 2");
+        JCheckBox workout3 = new JCheckBox(workoutType + " Workout 3");
+        JCheckBox workout4 = new JCheckBox(workoutType + " Workout 4");
 
         // Set the checkboxes based on the current selections
         String workoutsText = workoutsLabel.getText();
-        walkingCheckBox.setSelected(workoutsText.contains("Walking"));
-        runningCheckBox.setSelected(workoutsText.contains("Running"));
-        aerobicsCheckBox.setSelected(workoutsText.contains("Aerobics"));
-        weightLiftingCheckBox.setSelected(workoutsText.contains("Weight Lifting"));
+        workout1.setSelected(workoutsText.contains(workoutType + " Workout 1"));
+        workout2.setSelected(workoutsText.contains(workoutType + " Workout 2"));
+        workout3.setSelected(workoutsText.contains(workoutType + " Workout 3"));
+        workout4.setSelected(workoutsText.contains(workoutType + " Workout 4"));
 
+        checkBoxPanel.add(workout1);
+        checkBoxPanel.add(workout2);
+        checkBoxPanel.add(workout3);
+        checkBoxPanel.add(workout4);
+
+        workoutSelectionPanel.add(checkBoxPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveEditedWorkouts(workoutLabel, walkingCheckBox.isSelected(), runningCheckBox.isSelected(),
-                        aerobicsCheckBox.isSelected(), weightLiftingCheckBox.isSelected());
-                customWorkoutPage.dispose();
-            }
+        saveButton.setPreferredSize(new Dimension(75, 30));
+        saveButton.addActionListener(e -> {
+            saveEditedWorkouts(workoutLabel, workout1.isSelected(), workout2.isSelected(), workout3.isSelected(), workout4.isSelected(), workoutType);
+            customWorkoutPage.dispose();
         });
+        buttonPanel.add(saveButton);
 
-        workoutSelectionPanel.add(walkingCheckBox);
-        workoutSelectionPanel.add(runningCheckBox);
-        workoutSelectionPanel.add(aerobicsCheckBox);
-        workoutSelectionPanel.add(weightLiftingCheckBox);
+        workoutSelectionPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        workoutSelectionPanel.add(saveButton);
         customWorkoutPage.setContentPane(workoutSelectionPanel);
         customWorkoutPage.setVisible(true);
     }
 
-    private void saveEditedWorkouts(String workoutLabel, boolean walking, boolean running, boolean aerobics, boolean weightLifting) {
+    private void saveEditedWorkouts(String workoutLabel, boolean workout1, boolean workout2, boolean workout3, boolean workout4, String workoutType) {
         JPanel workoutPanel = (JPanel) tabbedPane.getComponentAt(tabbedPane.indexOfTab(workoutLabel));
         JLabel workoutsLabel = (JLabel) workoutPanel.getComponent(0);
 
-        StringBuilder workoutBuilder = new StringBuilder("Workouts: ");
-        if (walking) workoutBuilder.append("Walking, ");
-        if (running) workoutBuilder.append("Running, ");
-        if (aerobics) workoutBuilder.append("Aerobics, ");
-        if (weightLifting) workoutBuilder.append("Weight Lifting");
+        StringBuilder workoutBuilder = new StringBuilder(workoutType + " Workouts: ");
+        if (workout1) workoutBuilder.append(workoutType + " Workout 1, ");
+        if (workout2) workoutBuilder.append(workoutType + " Workout 2, ");
+        if (workout3) workoutBuilder.append(workoutType + " Workout 3, ");
+        if (workout4) workoutBuilder.append(workoutType + " Workout 4, ");
 
         workoutsLabel.setText(workoutBuilder.toString());
     }
@@ -481,6 +553,10 @@ class WorkoutBuilderPage extends JFrame {
             customWorkouts.append("None");
         }
         addCustomWorkoutButton.setText(customWorkouts.toString());
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new WorkoutBuilderPage().setVisible(true));
     }
 }
 @SuppressWarnings("serial")
