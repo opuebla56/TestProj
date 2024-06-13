@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -386,76 +387,81 @@ class WorkoutBuilderPage extends JFrame {
 
         // Panel for workout categories
         JPanel categoryPanel = new JPanel(new GridLayout(4, 1));
+        JButton aerobicsButton = new JButton("Aerobics");
         JButton walkingButton = new JButton("Walking");
         JButton runningButton = new JButton("Running");
-        JButton aerobicsButton = new JButton("Aerobics");
         JButton weightLiftingButton = new JButton("Weight Lifting");
 
-        walkingButton.addActionListener(e -> openCustomWorkoutPage("Walking"));
-        runningButton.addActionListener(e -> openCustomWorkoutPage("Running"));
-        aerobicsButton.addActionListener(e -> openCustomWorkoutPage("Aerobics"));
-        weightLiftingButton.addActionListener(e -> openCustomWorkoutPage("Weight Lifting"));
+        aerobicsButton.addActionListener(e -> openSubCategoryPage("Aerobics"));
+        walkingButton.addActionListener(e -> openSubCategoryPage("Walking"));
+        runningButton.addActionListener(e -> openSubCategoryPage("Running"));
+        weightLiftingButton.addActionListener(e -> openSubCategoryPage("Weight Lifting"));
 
+        categoryPanel.add(aerobicsButton);
         categoryPanel.add(walkingButton);
         categoryPanel.add(runningButton);
-        categoryPanel.add(aerobicsButton);
         categoryPanel.add(weightLiftingButton);
 
         categoriesPage.setContentPane(categoryPanel);
         categoriesPage.setVisible(true);
     }
 
-    private void openCustomWorkoutPage(String workoutType) {
-        JFrame customWorkoutPage = new JFrame(workoutType + " Workouts");
-        customWorkoutPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        customWorkoutPage.setSize(400, 300);
+    private void openSubCategoryPage(String category) {
+        JFrame subCategoryPage = new JFrame(category + " Workouts");
+        subCategoryPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        subCategoryPage.setSize(400, 300);
 
         // Panel for workout selection
-        JPanel workoutSelectionPanel = new JPanel(new BorderLayout());
+        JPanel workoutSelectionPanel = new JPanel(new GridLayout(0, 1));
 
-        JPanel checkBoxPanel = new JPanel(new GridLayout(4, 1));
-        JCheckBox workout1 = new JCheckBox(workoutType + " Workout 1");
-        JCheckBox workout2 = new JCheckBox(workoutType + " Workout 2");
-        JCheckBox workout3 = new JCheckBox(workoutType + " Workout 3");
-        JCheckBox workout4 = new JCheckBox(workoutType + " Workout 4");
+        if (category.equals("Aerobics")) {
+            addWorkoutButtons(workoutSelectionPanel, "Elliptical Training", "Plyometrics", "Jumping Jacks");
+        } else if (category.equals("Walking")) {
+            addWorkoutButtons(workoutSelectionPanel, "Brisk Walking", "Jogging");
+        } else if (category.equals("Running")) {
+            addWorkoutButtons(workoutSelectionPanel, "Interval Training");
+        } else if (category.equals("Weight Lifting")) {
+            addWorkoutButtons(workoutSelectionPanel, "Squats", "Bench Press", "Bicep Curls", "Deadlifts", "Tricep Dips", "Leg Press");
+        }
 
-        checkBoxPanel.add(workout1);
-        checkBoxPanel.add(workout2);
-        checkBoxPanel.add(workout3);
-        checkBoxPanel.add(workout4);
-
-        workoutSelectionPanel.add(checkBoxPanel, BorderLayout.CENTER);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
-        saveButton.setPreferredSize(new Dimension(75, 30));
         saveButton.addActionListener(e -> {
-            saveSelectedWorkouts(workoutType, workout1.isSelected(), workout2.isSelected(), workout3.isSelected(), workout4.isSelected());
-            customWorkoutPage.dispose();
+            saveSelectedWorkouts(category, workoutSelectionPanel);
+            subCategoryPage.dispose();
         });
-        buttonPanel.add(saveButton);
 
-        workoutSelectionPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        customWorkoutPage.setContentPane(workoutSelectionPanel);
-        customWorkoutPage.setVisible(true);
+        workoutSelectionPanel.add(saveButton);
+        subCategoryPage.setContentPane(workoutSelectionPanel);
+        subCategoryPage.setVisible(true);
     }
 
-    private void saveSelectedWorkouts(String workoutType, boolean workout1, boolean workout2, boolean workout3, boolean workout4) {
+    private void addWorkoutButtons(JPanel panel, String... workouts) {
+        for (String workout : workouts) {
+            JCheckBox checkBox = new JCheckBox(workout);
+            panel.add(checkBox);
+        }
+    }
+
+    private void saveSelectedWorkouts(String category, JPanel panel) {
         String workoutLabel = getNextCustomWorkoutTabName();
         JPanel workoutPanel = new JPanel(new BorderLayout());
 
-        StringBuilder workoutBuilder = new StringBuilder(workoutType + " Workouts: ");
-        if (workout1) workoutBuilder.append(workoutType + " Workout 1, ");
-        if (workout2) workoutBuilder.append(workoutType + " Workout 2, ");
-        if (workout3) workoutBuilder.append(workoutType + " Workout 3, ");
-        if (workout4) workoutBuilder.append(workoutType + " Workout 4, ");
+        StringBuilder workoutBuilder = new StringBuilder(category + " Workouts: ");
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.isSelected()) {
+                    workoutBuilder.append(checkBox.getText()).append(", ");
+                }
+            }
+        }
 
         JLabel workoutsLabel = new JLabel(workoutBuilder.toString());
         workoutPanel.add(workoutsLabel, BorderLayout.CENTER);
 
         JButton editButton = new JButton("Edit");
-        editButton.addActionListener(e -> editWorkout(workoutLabel, workoutsLabel, workoutType));
+        editButton.addActionListener(e -> editWorkout(workoutLabel, workoutsLabel, category));
 
         JButton renameButton = new JButton("Rename");
         renameButton.addActionListener(e -> renameWorkout(workoutLabel));
@@ -465,6 +471,7 @@ class WorkoutBuilderPage extends JFrame {
             int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this custom workout?", "Delete Custom Workout", JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.YES_OPTION) {
                 tabbedPane.removeTabAt(tabbedPane.indexOfComponent(workoutPanel));
+                updateAddCustomWorkoutButton();
             }
         });
 
@@ -475,6 +482,7 @@ class WorkoutBuilderPage extends JFrame {
         workoutPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         tabbedPane.addTab(workoutLabel, workoutPanel);
+        updateAddCustomWorkoutButton();
     }
 
     private String getNextCustomWorkoutTabName() {
@@ -486,57 +494,56 @@ class WorkoutBuilderPage extends JFrame {
         return workoutLabel;
     }
 
-    private void editWorkout(String workoutLabel, JLabel workoutsLabel, String workoutType) {
+    private void editWorkout(String workoutLabel, JLabel workoutsLabel, String category) {
         JFrame customWorkoutPage = new JFrame("Edit Custom Workouts");
         customWorkoutPage.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         customWorkoutPage.setSize(400, 300);
 
-        JPanel workoutSelectionPanel = new JPanel(new BorderLayout());
+        JPanel workoutSelectionPanel = new JPanel(new GridLayout(0, 1));
 
-        JPanel checkBoxPanel = new JPanel(new GridLayout(4, 1));
-        JCheckBox workout1 = new JCheckBox(workoutType + " Workout 1");
-        JCheckBox workout2 = new JCheckBox(workoutType + " Workout 2");
-        JCheckBox workout3 = new JCheckBox(workoutType + " Workout 3");
-        JCheckBox workout4 = new JCheckBox(workoutType + " Workout 4");
+        if (category.equals("Aerobics")) {
+            editWorkoutButtons(workoutSelectionPanel, workoutsLabel.getText(), "Elliptical Training", "Plyometrics", "Jumping Jacks");
+        } else if (category.equals("Walking")) {
+            editWorkoutButtons(workoutSelectionPanel, workoutsLabel.getText(), "Brisk Walking", "Jogging");
+        } else if (category.equals("Running")) {
+            editWorkoutButtons(workoutSelectionPanel, workoutsLabel.getText(), "Interval Training");
+        } else if (category.equals("Weight Lifting")) {
+            editWorkoutButtons(workoutSelectionPanel, workoutsLabel.getText(), "Squats", "Bench Press", "Bicep Curls", "Deadlifts", "Tricep Dips", "Leg Press");
+        }
 
-        // Set the checkboxes based on the current selections
-        String workoutsText = workoutsLabel.getText();
-        workout1.setSelected(workoutsText.contains(workoutType + " Workout 1"));
-        workout2.setSelected(workoutsText.contains(workoutType + " Workout 2"));
-        workout3.setSelected(workoutsText.contains(workoutType + " Workout 3"));
-        workout4.setSelected(workoutsText.contains(workoutType + " Workout 4"));
-
-        checkBoxPanel.add(workout1);
-        checkBoxPanel.add(workout2);
-        checkBoxPanel.add(workout3);
-        checkBoxPanel.add(workout4);
-
-        workoutSelectionPanel.add(checkBoxPanel, BorderLayout.CENTER);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveButton = new JButton("Save");
-        saveButton.setPreferredSize(new Dimension(75, 30));
         saveButton.addActionListener(e -> {
-            saveEditedWorkouts(workoutLabel, workout1.isSelected(), workout2.isSelected(), workout3.isSelected(), workout4.isSelected(), workoutType);
+            saveEditedWorkouts(workoutLabel, workoutSelectionPanel, category);
             customWorkoutPage.dispose();
         });
-        buttonPanel.add(saveButton);
 
-        workoutSelectionPanel.add(buttonPanel, BorderLayout.SOUTH);
-
+        workoutSelectionPanel.add(saveButton);
         customWorkoutPage.setContentPane(workoutSelectionPanel);
         customWorkoutPage.setVisible(true);
     }
 
-    private void saveEditedWorkouts(String workoutLabel, boolean workout1, boolean workout2, boolean workout3, boolean workout4, String workoutType) {
+    private void editWorkoutButtons(JPanel panel, String selectedWorkouts, String... workouts) {
+        for (String workout : workouts) {
+            JCheckBox checkBox = new JCheckBox(workout);
+            checkBox.setSelected(selectedWorkouts.contains(workout));
+            panel.add(checkBox);
+        }
+    }
+
+    private void saveEditedWorkouts(String workoutLabel, JPanel panel, String category) {
         JPanel workoutPanel = (JPanel) tabbedPane.getComponentAt(tabbedPane.indexOfTab(workoutLabel));
         JLabel workoutsLabel = (JLabel) workoutPanel.getComponent(0);
 
-        StringBuilder workoutBuilder = new StringBuilder(workoutType + " Workouts: ");
-        if (workout1) workoutBuilder.append(workoutType + " Workout 1, ");
-        if (workout2) workoutBuilder.append(workoutType + " Workout 2, ");
-        if (workout3) workoutBuilder.append(workoutType + " Workout 3, ");
-        if (workout4) workoutBuilder.append(workoutType + " Workout 4, ");
+        StringBuilder workoutBuilder = new StringBuilder(category + " Workouts: ");
+        Component[] components = panel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JCheckBox) {
+                JCheckBox checkBox = (JCheckBox) component;
+                if (checkBox.isSelected()) {
+                    workoutBuilder.append(checkBox.getText()).append(", ");
+                }
+            }
+        }
 
         workoutsLabel.setText(workoutBuilder.toString());
     }
@@ -549,6 +556,10 @@ class WorkoutBuilderPage extends JFrame {
                 tabbedPane.setTitleAt(index, newLabel);
             }
         }
+    }
+
+    private void updateAddCustomWorkoutButton() {
+        addCustomWorkoutButton.setText("Add Custom Workout");
     }
 
     public static void main(String[] args) {
