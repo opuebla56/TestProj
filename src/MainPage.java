@@ -362,7 +362,7 @@ class WorkoutBuilderPage extends JFrame {
 
         // Plus button panel
         JPanel plusButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        addCustomWorkoutButton = new JButton("+ Add Custom Workout");
+        addCustomWorkoutButton = new JButton("Add Custom Workout");
         addCustomWorkoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -457,22 +457,24 @@ class WorkoutBuilderPage extends JFrame {
         JButton editButton = new JButton("Edit");
         editButton.addActionListener(e -> editWorkout(workoutLabel, workoutsLabel, workoutType));
 
+        JButton renameButton = new JButton("Rename");
+        renameButton.addActionListener(e -> renameWorkout(workoutLabel));
+
         JButton deleteButton = new JButton(new ImageIcon(getClass().getResource("TrashCan.png")));
         deleteButton.addActionListener(e -> {
             int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this custom workout?", "Delete Custom Workout", JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.YES_OPTION) {
                 tabbedPane.removeTabAt(tabbedPane.indexOfComponent(workoutPanel));
-                updateAddCustomWorkoutButton();
             }
         });
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(editButton);
+        buttonPanel.add(renameButton);
         buttonPanel.add(deleteButton);
         workoutPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         tabbedPane.addTab(workoutLabel, workoutPanel);
-        updateAddCustomWorkoutButton();
     }
 
     private String getNextCustomWorkoutTabName() {
@@ -539,20 +541,14 @@ class WorkoutBuilderPage extends JFrame {
         workoutsLabel.setText(workoutBuilder.toString());
     }
 
-    private void updateAddCustomWorkoutButton() {
-        StringBuilder customWorkouts = new StringBuilder("Custom Workouts: ");
-        for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-            String tabTitle = tabbedPane.getTitleAt(i);
-            if (tabTitle.startsWith("Custom Workout")) {
-                customWorkouts.append(tabTitle).append(", ");
+    private void renameWorkout(String workoutLabel) {
+        String newLabel = JOptionPane.showInputDialog(this, "Enter new name for the workout:", workoutLabel);
+        if (newLabel != null && !newLabel.trim().isEmpty()) {
+            int index = tabbedPane.indexOfTab(workoutLabel);
+            if (index != -1) {
+                tabbedPane.setTitleAt(index, newLabel);
             }
         }
-        if (customWorkouts.length() > 17) {
-            customWorkouts.delete(customWorkouts.length() - 2, customWorkouts.length()); // Remove trailing comma and space
-        } else {
-            customWorkouts.append("None");
-        }
-        addCustomWorkoutButton.setText(customWorkouts.toString());
     }
 
     public static void main(String[] args) {
