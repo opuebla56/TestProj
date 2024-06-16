@@ -56,6 +56,8 @@ class MainPage extends JFrame {
         JButton mealPlanningButton = new JButton("Meal Planning");
         JButton activityTrackingButton = new JButton("Activity Tracking");
         JButton calorieBurnCalculatorButton = new JButton("Calorie Burn Calculator");
+        
+        JButton logOutButton = new JButton("Logout");
 
         // Add buttons to button panel
         Dimension buttonSize = new Dimension(250, 30);
@@ -64,12 +66,16 @@ class MainPage extends JFrame {
         mealPlanningButton.setPreferredSize(buttonSize);
         activityTrackingButton.setPreferredSize(buttonSize);
         calorieBurnCalculatorButton.setPreferredSize(buttonSize);
+        
+        Dimension LogoutSize = new Dimension (150, 50);
+        logOutButton.setPreferredSize(LogoutSize);
 
         buttonPanel.add(userProfileButton);
         buttonPanel.add(workoutBuilderButton);
         buttonPanel.add(mealPlanningButton);
         buttonPanel.add(activityTrackingButton);
         buttonPanel.add(calorieBurnCalculatorButton);
+        buttonPanel.add(logOutButton);
 
         // Action listeners for each button
         userProfileButton.addActionListener(e -> {
@@ -95,6 +101,12 @@ class MainPage extends JFrame {
         calorieBurnCalculatorButton.addActionListener(e -> {
             // Open calorie burn calculator page
             new CalorieBurnCalculatorPage().setVisible(true);
+        });
+        
+        logOutButton.addActionListener(e -> {
+        	
+        	dispose();
+        	//LoginPage.setVisible(true);
         });
 
         buttonPanel.setBackground(new Color(20, 215, 150));
