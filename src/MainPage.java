@@ -706,7 +706,7 @@ class CalorieBurnCalculatorPage extends JFrame {
                         caloriesBurned = duration * 7; // avg running speed at 7 mph
                         break;
                     case "Aerobics":
-                        caloriesBurned = duration * 444; // avg cal burned 444 per minute
+                        caloriesBurned = duration * 15; // avg cal burned 444 per minute
                         break;
                     case "Weight Lifting":
                         caloriesBurned = duration * 4; //  avg 4 cal burned per minute

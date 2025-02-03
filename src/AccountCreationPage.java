@@ -1,14 +1,8 @@
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import javax.swing.*;
 
 @SuppressWarnings("serial")
 class AccountCreationPage extends JFrame {
@@ -37,14 +31,41 @@ class AccountCreationPage extends JFrame {
 
         // Action listener for create button
         createButton.addActionListener(e -> {
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
-            // Perform account creation functionality here
-            JOptionPane.showMessageDialog(null, "Account Created! Username: " + username + ", Password: " + password);
-            dispose(); // Close account creation frame
-            new MainPage().setVisible(true); // Open main page
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword()).trim();
+            
+            // Ensure username and password are not empty
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Username and Password cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Call method to save credentials to file
+            if (saveCredentials(username, password)) {
+                JOptionPane.showMessageDialog(this, "Account Created Successfully!");
+                dispose();  // Close account creation frame
+                new LoginPage().setVisible(true);  // Open login page
+            } else {
+                JOptionPane.showMessageDialog(this, "Error creating account. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         setContentPane(panel);
+    }
+
+    // Method to save credentials to the users.txt file
+    private boolean saveCredentials(String username, String password) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("users.txt", true))) {
+            writer.write(username + "," + password);
+            writer.newLine();
+            return true;  // Return true if writing was successful
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;  // Return false if there was an error
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new AccountCreationPage().setVisible(true));
     }
 }
