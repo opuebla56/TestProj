@@ -44,14 +44,18 @@ public class LoginPage extends JFrame {
             loginUser(username, password);
         });
 
-        // Action listener for create account button
+        handleLogin(createAccountButton);
+
+        setContentPane(panel);
+    }
+
+	private void handleLogin(JButton createAccountButton) {
+		// Action listener for create account button
         createAccountButton.addActionListener(e -> {
             dispose();  // Close login page frame
             new AccountCreationPage().setVisible(true);
         });
-
-        setContentPane(panel);
-    }
+	}
 
     // Method to load usernames and passwords from file into the HashMap
     private void loadUserCredentials(String filePath) {
