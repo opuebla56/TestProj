@@ -42,23 +42,4 @@ public class LoginController {
             JOptionPane.showMessageDialog(loginPage, "Invalid username or password.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
-    
-    public JTextField getUsernameField() {
-        return usernameField;
-    }
-
-    public JPasswordField getPasswordField() {
-        return passwordField;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
-    }
-
-    public JButton getCreateAccountButton() {
-        return createAccountButton;
-    }
-
-    
 }
