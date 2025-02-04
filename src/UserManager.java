@@ -39,4 +39,12 @@ public class UserManager {
             return false;
         }
     }
+    
+    public static boolean createAccount(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            return false;  // Return false if fields are empty
+        }
+        return saveUser(username, password);
+    }
+
 }
