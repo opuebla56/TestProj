@@ -34,7 +34,9 @@ public class LoginController {
         String username = loginPage.getUsernameField().getText().trim();
         String password = new String(loginPage.getPasswordField().getPassword()).trim();
 
-        if (UserManager.authenticateUser(username, password)) {
+        UserAuthenticator authenticator = new UserAuthenticator(new UserRepository());
+
+        if (authenticator.authenticate(username, password)) {
             JOptionPane.showMessageDialog(loginPage, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
             loginPage.dispose();
             new MainPage().setVisible(true);
