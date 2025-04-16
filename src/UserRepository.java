@@ -2,11 +2,10 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserManager {
-    private static final String FILE_PATH = "users.txt";  // File where credentials are stored
+public class UserRepository {
+    private static final String FILE_PATH = "users.txt";
 
-    
-    public static Map<String, String> loadUserCredentials() {
+    public Map<String, String> loadUserCredentials() {
         Map<String, String> userCredentials = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
@@ -22,14 +21,7 @@ public class UserManager {
         return userCredentials;
     }
 
-    
-    public static boolean authenticateUser(String username, String password) {
-        Map<String, String> userCredentials = loadUserCredentials();
-        return userCredentials.containsKey(username) && userCredentials.get(username).equals(password);
-    }
-
-    
-    public static boolean saveUser(String username, String password) {
+    public boolean saveUser(String username, String password) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(username + "," + password);
             writer.newLine();
@@ -39,12 +31,4 @@ public class UserManager {
             return false;
         }
     }
-    
-    public static boolean createAccount(String username, String password) {
-        if (username.isEmpty() || password.isEmpty()) {
-            return false;  // Return false if fields are empty
-        }
-        return saveUser(username, password);
-    }
-
 }
